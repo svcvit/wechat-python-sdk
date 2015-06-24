@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
+import urllib
 import time
 import json
 import cgi
@@ -886,6 +887,111 @@ class WechatCorp(WechatBase):
         )
         return response_json
 
+    def create_menu(self,menu_data):
+        """
+        创建菜单
+        :param menu_data:
+        :return:
+        """
+        self._check_corpid_secret()
+        menu_data = self._transcoding_dict(menu_data)
+        return self._post(
+            url='https://qyapi.weixin.qq.com/cgi-bin/menu/create',
+            params={
+                'access_token':self.__access_token,
+                'agentid':self.__agent_id
+            },
+            data=menu_data
+        )
+
+    def delete_menu(self):
+        """
+        删除菜单
+        :param menu_data:
+        :return:
+        """
+        self._check_corpid_secret()
+        response_json = self._get(
+            url = "https://qyapi.weixin.qq.com/cgi-bin/menu/delete",
+            params={
+                'access_token': self.__access_token,
+                'agentid':self.__agent_id
+            }
+        )
+        return response_json
+
+    def get_menu(self):
+        """
+        查询菜单
+        :param menu_data:
+        :return:
+        """
+        self._check_corpid_secret()
+        response_json = self._get(
+            url = "https://qyapi.weixin.qq.com/cgi-bin/menu/get",
+            params={
+                'access_token': self.__access_token,
+                'agentid':self.__agent_id
+            }
+        )
+        return response_json
+
+    def oauth_get_code(self,redirect_uri,state):
+        """
+        封装页面跳转url链接，url在微信中打开即可跳转到redirect_uri，并带上code参数和state参数
+        :return:
+        """
+        self._check_corpid_secret()
+        if len(state)>128:
+            raise CorpStateError("The length of state is beyond the max length 128")
+        redirect_uri=urllib.quote(redirect_uri)
+        url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=%s#wechat_redirect"% (
+            self.__corpid,
+            redirect_uri,
+            state
+        )
+        return url
+
+    def oauth_get_userinfo(self,code):
+        """
+        通过code获取用户userid
+        :param code:
+        :return:
+        """
+        self._check_corpid_secret()
+        response_json = self._get(
+            url = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo",
+            params={
+                'access_token': self.__access_token,
+                'agentid':self.__agent_id,
+                'code':code
+            }
+        )
+        return response_json
+
+    def grant_jsapi_ticket(self, override=True):
+        """
+        获取 Jsapi Ticket
+        详情请参考 http://qydev.weixin.qq.com/wiki/index.php?title=%E5%BE%AE%E4%BF%A1JS%E6%8E%A5%E5%8F%A3
+        :param override: 是否在获取的同时覆盖已有 jsapi_ticket (默认为True)
+        :return: 返回的 JSON 数据包
+        :raise HTTPError: 微信api http 请求失败
+        """
+        self._check_corpid_secret()
+        # force to grant new access_token to avoid invalid credential issue
+        self.grant_token()
+
+        response_json = self._get(
+            url="https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket",
+            params={
+                "access_token": self.__access_token
+            }
+        )
+        if override:
+            self.__jsapi_ticket = response_json['ticket']
+            self.__jsapi_ticket_expires_at = int(time.time()) + response_json['expires_in']
+        return response_json
+        
     def _send_collection(self, touser, toparty, totag):
         data = {}
         if touser is None:
