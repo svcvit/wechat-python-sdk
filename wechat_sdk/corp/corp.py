@@ -969,6 +969,41 @@ class WechatCorp(WechatBase):
         )
         return response_json
 
+    def convert_to_openid(self,userid):
+        """
+        userid转换成openid接口
+        :param menu_data:
+        :return:
+        """
+        self._check_corpid_secret()
+        data = {
+            'agentid':self.__agent_id,
+            'userid':userid
+        }
+
+        response_json = self._post(
+            url='https://qyapi.weixin.qq.com/cgi-bin/user/convert_to_openid',
+            data=data
+        )
+        return response_json
+
+    def convert_to_userid(self,openid):
+        """
+        openid转换成userid接口
+        :param menu_data:
+        :return:
+        """
+        self._check_corpid_secret()
+        data = {
+            'openid':openid
+        }
+
+        response_json = self._post(
+            url='https://qyapi.weixin.qq.com/cgi-bin/user/convert_to_userid',
+            data=data
+        )
+        return response_json
+
     def grant_jsapi_ticket(self, override=True):
         """
         获取 Jsapi Ticket
