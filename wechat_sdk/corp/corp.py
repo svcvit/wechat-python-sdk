@@ -336,6 +336,33 @@ class WechatCorp(WechatBase):
         else:
             raise CorpUserManagementError("Please provide userid and username parameter in the construction of class.")
 
+    def update_user(self, data):
+        """
+            更新用户
+            参数  必须  说明
+            data为json数据
+            access_token    是   调用接口凭证
+            userid  是   员工UserID。对应管理端的帐号，企业内必须唯一。长度为1~64个字符
+            name    是   成员名称。长度为1~64个字符
+            department  是   成员所属部门id列表。注意，每个部门的直属员工上限为1000个
+            position    否   职位信息。长度为0~64个字符
+            mobile  否   手机号码。企业内必须唯一，mobile/weixinid/email三者不能同时为空
+            email   否   邮箱。长度为0~64个字符。企业内必须唯一
+            weixinid    否   微信号。企业内必须唯一。（注意：是微信号，不是微信的名字）
+            extattr 否   扩展属性。扩展属性需要在WEB管理端创建后才生效，否则忽略未知属性的赋值
+        """
+        self._check_corpid_secret()
+
+        if data.get("userid"):
+            response_json = self._post(
+                url="https://qyapi.weixin.qq.com/cgi-bin/user/update",
+                data=data
+            )
+            return response_json
+        else:
+            raise CorpUserManagementError("Please provide userid and username parameter in the construction of class.")
+
+
     def delete_user(self, userid):
         """
             删除成员
