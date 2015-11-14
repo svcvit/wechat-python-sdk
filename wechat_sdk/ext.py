@@ -326,23 +326,23 @@ class WechatExt(object):
         """
         self._init_plugin_token_appid()
 
-        url = 'http://mta.qq.com/mta/wechat/ctr_article_detail/get_list?sort=RefDate%20desc&keyword=&page={page}&appid={appid}&pluginid=luopan&token={token}&from=&src=false&devtype=3&time_type=day&start_date={start_date}&end_date={end_date}&need_compare=0&app_id=&rnd={rnd}&ajax=1'.format(
+        url = 'https://mp.weixin.qq.com/misc/appmsganalysis?action=all&begin_date={start_date}&end_date={end_date}&order_by=1&order_direction=2&page_num={page}&page_size=10&token={token}&lang=zh_CN&f=json&ajax=1&random={rnd}'.format(
             page=page,
-            appid=self.__appid,
-            token=self.__plugin_token,
+            # appid=self.__appid,
+            token=self.__token,
             rnd=int(time.time()),
             start_date=start_date,
             end_date=end_date,
         )
         headers = {
             'x-requested-with': 'XMLHttpRequest',
-            'referer': 'http://mta.qq.com/mta/wechat/ctr_article_detail/get_list?sort=RefDate%20desc&keyword=&page={page}&appid={appid}&pluginid=luopan&token={token}&from=&src=false&devtype=3&time_type=day&start_date={start_date}&end_date={end_date}&need_compare=0&app_id=&rnd={rnd}&ajax=1'.format(
-                page=page,
-                appid=self.__appid,
-                token=self.__plugin_token,
-                rnd=int(time.time()),
-                start_date=start_date,
-                end_date=end_date,
+            'referer': 'https://mp.weixin.qq.com/misc/appmsganalysis?action=all&order_direction=2&token={token}&lang=zh_CN'.format(
+                # page=page,
+                # appid=self.__appid,
+                token=self.__token,
+                # rnd=int(time.time()),
+                # start_date=start_date,
+                # end_date=end_date,
             ),
             'cookie': self.__cookies,
         }
@@ -354,9 +354,11 @@ class WechatExt(object):
 
         try:
             data = json.loads(r.text)
-            if data.get('is_session_expire'):
-                raise NeedLoginError(r.text)
-            message = json.dumps(data, ensure_ascii=False)
+            # if data.get('total_article_data'):
+            #     raise NeedLoginError(r.text)
+
+            out = json.loads(data['total_article_data'])    
+            message = json.dumps(out, ensure_ascii=False)
         except (KeyError, ValueError):
             raise NeedLoginError(r.text)
 
