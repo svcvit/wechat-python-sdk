@@ -7,7 +7,6 @@ class WechatBase(object):
     @classmethod
     def _transcoding(cls, data):
         """编码转换
-
         :param data: 需要转换的数据
         :return: 转换好的数据
         """
@@ -15,7 +14,7 @@ class WechatBase(object):
             return data
 
         result = None
-        if isinstance(data, str):
+        if isinstance(data, str) and hasattr(data, 'decode'):
             result = data.decode('utf-8')
         else:
             result = data
@@ -24,7 +23,6 @@ class WechatBase(object):
     @classmethod
     def _transcoding_list(cls, data):
         """编码转换 for list
-
         :param data: 需要转换的 list 数据
         :return: 转换好的 list
         """
@@ -43,8 +41,8 @@ class WechatBase(object):
 
     @classmethod
     def _transcoding_dict(cls, data):
-        """编码转换 for dict
-
+        """
+        编码转换 for dict
         :param data: 需要转换的 dict 数据
         :return: 转换好的 dict
         """
